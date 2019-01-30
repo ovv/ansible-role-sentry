@@ -105,13 +105,7 @@
     special_time: daily
 
 - name: Create first sentry user
-  expect:
-    command: /opt/sentry/bin/sentry createuser
-    responses:
-      Email: "{{ sentry_user.email }}"
-      Password: "{{ sentry_user.password }}"
-      Repeat for confirmation: "{{ sentry_user.password }}"
-      Should this user be a superuser? [y/N]: "y"
+  command: "/opt/sentry/bin/sentry createuser --email {{ sentry_user.email }} --password {{ sentry_user.password }} --superuser"
   environment:
     SENTRY_CONF: /etc/sentry
   when: sentry_init is changed and sentry_user is defined

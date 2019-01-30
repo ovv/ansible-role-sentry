@@ -18,7 +18,7 @@
       - postgresql-contrib
     state: latest
 
-- name: Start redis
+- name: Start & enable redis
   systemd:
     name: "redis.service"
     state: started
@@ -106,11 +106,11 @@
 - name: Create first sentry user
   expect:
     command: /opt/sentry/bin/sentry createuser
-    environment:
-      SENTRY_CONF: /etc/sentry
     responses:
       Email: "{{ sentry_user.email }}"
       Password: "{{ sentry_user.password }}"
       Repeat for confirmation: "{{ sentry_user.password }}"
       Should this user be a superuser? [y/N]: "Y"
+  environment:
+    SENTRY_CONF: /etc/sentry
   when: sentry_init is changed and sentry_user is defined

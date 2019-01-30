@@ -16,6 +16,7 @@
       - libpq-dev
       - redis-server
       - postgresql-contrib
+      - python-pexpect
     state: latest
 
 - name: Start & enable redis

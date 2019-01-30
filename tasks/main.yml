@@ -16,7 +16,14 @@
       - libpq-dev
       - redis-server
       - postgresql-contrib
+      - python-pexpect
     state: latest
+
+- name: Start & enable redis
+  systemd:
+    name: "redis.service"
+    state: started
+    enabled: true
 
 - name: Create sentry group
   group:
@@ -38,13 +45,12 @@
 
 - name: Install sentry
   pip:
-    name: "{{ item }}"
+    name:
+      - sentry
+      - sentry-plugins
     state: latest
     virtualenv: /opt/sentry
     virtualenv_python: python2
-  with_items:
-    - sentry
-    - sentry-plugins
   notify: Restart Sentry
   register: sentry_install
 
@@ -53,6 +59,15 @@
   args:
     creates: /etc/sentry
   register: sentry_init
+
+- name: Configuration
+  template:
+    src: "etc/sentry/{{ item }}.j2"
+    dest: "/etc/sentry/{{ item }}"
+  with_items:
+    - config.yml
+    - sentry.conf.py
+  notify: Restart Sentry
 
 - name: Sentry migration
   command: /opt/sentry/bin/sentry upgrade --noinput
@@ -90,13 +105,7 @@
     special_time: daily
 
 - name: Create first sentry user
-  expect:
-    command: /opt/sentry/bin/sentry createuser
-    environment:
-      SENTRY_CONF: /etc/sentry
-    responses:
-      Email: "{{ sentry_user.email }}"
-      Password: "{{ sentry_user.password }}"
-      Repeat for confirmation: "{{ sentry_user.password }}"
-      Should this user be a superuser? [y/N]: "Y"
-  when: sentry_init is changed
+  command: "/opt/sentry/bin/sentry createuser --email {{ sentry_user.email }} --password {{ sentry_user.password }} --superuser"
+  environment:
+    SENTRY_CONF: /etc/sentry
+  when: sentry_init is changed and sentry_user is defined

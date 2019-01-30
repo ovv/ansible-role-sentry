@@ -111,7 +111,7 @@
       Email: "{{ sentry_user.email }}"
       Password: "{{ sentry_user.password }}"
       Repeat for confirmation: "{{ sentry_user.password }}"
-      Should this user be a superuser? [y/N]: "Y"
+      Should this user be a superuser? [y/N]: "y"
   environment:
     SENTRY_CONF: /etc/sentry
   when: sentry_init is changed and sentry_user is defined

@@ -107,4 +107,4 @@
       Password: "{{ sentry_user.password }}"
       Repeat for confirmation: "{{ sentry_user.password }}"
       Should this user be a superuser? [y/N]: "Y"
-  when: sentry_init is changed
+  when: sentry_init is changed and sentry_user is defined

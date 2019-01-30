@@ -1,0 +1,7 @@
+---
+
+sentry_mail:
+  host: ''
+
+sentry_database:
+  password: ''

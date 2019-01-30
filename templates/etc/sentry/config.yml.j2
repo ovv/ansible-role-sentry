@@ -10,6 +10,15 @@
 ###############
 
 mail.backend: 'smtp'  # Use dummy if you want to disable email entirely
+{{% if sentry_mail.host %}}
+mail.host: '{{ sentry_mail.host }}'
+mail.port: {{ sentry_mail.port | default(25) }}
+mail.username: '{{ sentry_mail.username }}'
+mail.password: '{{ sentry_mail.password }}'
+mail.use-tls: {{ sentry_mail.tls | default(False) | lower}}
+# The email address to send on behalf of
+mail.from: '{{ sentry_mail.from }}'
+{{% else %}}
 # mail.host: ''
 # mail.port: 25
 # mail.username: ''
@@ -17,6 +26,7 @@ mail.backend: 'smtp'  # Use dummy if you want to disable email entirely
 # mail.use-tls: false
 # The email address to send on behalf of
 # mail.from: ''
+{{% endif %}}
 
 # If you'd like to configure email replies, enable this.
 # mail.enable-replies: false

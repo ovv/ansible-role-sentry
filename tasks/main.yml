@@ -38,13 +38,12 @@
 
 - name: Install sentry
   pip:
-    name: "{{ item }}"
+    name:
+      - sentry
+      - sentry-plugins
     state: latest
     virtualenv: /opt/sentry
     virtualenv_python: python2
-  with_items:
-    - sentry
-    - sentry-plugins
   notify: Restart Sentry
   register: sentry_install
 
@@ -53,6 +52,15 @@
   args:
     creates: /etc/sentry
   register: sentry_init
+
+- name: Configuration
+  template:
+    src: "etc/sentry/{{ item }}.j2"
+    dest: "/etc/sentry/{{ item }}"
+  with_items:
+    - config.yml
+    - sentry.conf.py
+  notify: Restart Sentry
 
 - name: Sentry migration
   command: /opt/sentry/bin/sentry upgrade --noinput

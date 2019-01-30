@@ -5,6 +5,8 @@
     postgres_users:
       sentry:
         password: password
+    sentry_database:
+      password: password
     sentry_user:
       email: example@example.com
       password: hunter2

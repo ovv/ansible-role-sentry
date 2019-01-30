@@ -18,6 +18,9 @@ install:
   - docker exec --tty ${container_id} env TERM=xterm apt-get update -qq
   - docker ps
 
+  # Requirements
+  - git clone https://github.com/pyslackers/ansible-role-postgres ../pyslackers.postgres
+
 script:
   # Run playbook.
   - docker exec --tty $container_id env TERM=xterm ansible-playbook /etc/ansible/roles/ansible-role-sentry/tests/test.yml --syntax-check

@@ -18,6 +18,12 @@
       - postgresql-contrib
     state: latest
 
+- name: Start redis
+  systemd:
+    name: "redis.service"
+    state: started
+    enabled: true
+
 - name: Create sentry group
   group:
     name: sentry

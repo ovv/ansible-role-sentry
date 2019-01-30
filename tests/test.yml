@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  vars:
+    sentry_user:
+      email: example@example.com
+      password: hunter2
+  roles:
+    - ansible-role-sentry

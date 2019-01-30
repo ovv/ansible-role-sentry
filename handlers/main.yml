@@ -1,0 +1,10 @@
+---
+
+- name: Restart Sentry
+  systemd:
+    name: "sentry-{{ item }}.service"
+    state: restarted
+  with_items:
+    - web
+    - worker
+    - cron

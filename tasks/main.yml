@@ -1,0 +1,102 @@
+---
+
+- name: Install required packages
+  apt:
+    pkg:
+      - python-setuptools
+      - python-virtualenv
+      - python-dev
+      - libxslt1-dev
+      - gcc
+      - libffi-dev
+      - libjpeg-dev
+      - libxml2-dev
+      - libxslt-dev
+      - libyaml-dev
+      - libpq-dev
+      - redis-server
+      - postgresql-contrib
+    state: latest
+
+- name: Create sentry group
+  group:
+    name: sentry
+    state: present
+
+- name: create sentry user
+  user:
+    name: sentry
+    group: sentry
+    create_home: true
+
+- name: Install citext postgresql extension
+  become: true
+  become_user: postgres
+  postgresql_ext:
+    name: citext
+    db: sentry
+
+- name: Install sentry
+  pip:
+    name: "{{ item }}"
+    state: latest
+    virtualenv: /opt/sentry
+    virtualenv_python: python2
+  with_items:
+    - sentry
+    - sentry-plugins
+  notify: Restart Sentry
+  register: sentry_install
+
+- name: Sentry init
+  command: /opt/sentry/bin/sentry init /etc/sentry
+  args:
+    creates: /etc/sentry
+  register: sentry_init
+
+- name: Sentry migration
+  command: /opt/sentry/bin/sentry upgrade --noinput
+  environment:
+    SENTRY_CONF: /etc/sentry
+  when: sentry_install is changed
+
+- name: Setup sentry systemd services
+  template:
+    src: "etc/systemd/system/sentry-{{ item }}.service.j2"
+    dest: "/etc/systemd/system/sentry-{{ item }}.service"
+  with_items:
+    - web
+    - worker
+    - cron
+  notify: Restart Sentry
+
+- name: Start and enable sentry systemd services
+  tags:
+    - travis-exempt
+  systemd:
+    name: "sentry-{{ item }}.service"
+    state: started
+    enabled: true
+  with_items:
+    - web
+    - worker
+    - cron
+
+- name: Sentry cleanup cron
+  cron:
+    user: sentry
+    name: Sentry cleanup
+    job: /opt/sentry/bin/sentry cleanup --days=30
+    special_time: daily
+
+- name: Create first sentry user
+  expect:
+    command: /opt/sentry/bin/sentry createuser
+    environment:
+      SENTRY_CONF: /etc/sentry
+    responses:
+      Email: "{{ sentry_user.email }}"
+      Password: "{{ sentry_user.password }}"
+      Repeat for confirmation: "{{ sentry_user.password }}"
+      Should this user be a superuser? [y/N]: "Y"
+  when: sentry_init is changed

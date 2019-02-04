@@ -101,7 +101,7 @@
   cron:
     user: sentry
     name: Sentry cleanup
-    job: SENTRY_CONF=/etc/sentry /opt/sentry/bin/sentry cleanup --days=30
+    job: SENTRY_CONF=/etc/sentry /opt/sentry/bin/sentry cleanup --days=30 --silent
     special_time: daily
 
 - name: Create first sentry user

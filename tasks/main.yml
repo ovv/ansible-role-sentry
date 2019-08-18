@@ -17,7 +17,7 @@
       - redis-server
       - postgresql-contrib
       - python-pexpect
-    state: latest
+    state: present
 
 - name: Start & enable redis
   systemd:
@@ -48,7 +48,7 @@
     name:
       - sentry
       - sentry-plugins
-    state: latest
+    state: present
     virtualenv: /opt/sentry
     virtualenv_python: python2
   notify: Restart Sentry
